@@ -1,13 +1,46 @@
+import axios from 'axios';
+import { useState } from 'react';
+import blessbasket from '../assets/blessbasket-removebg-preview.png';
 
+function Register() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-export default function Register() {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:3000/register', {
+        name,
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        console.log('Cadastro bem-sucedido!');
+      } else {
+        setError('Erro ao cadastrar. Por favor, tente novamente.');
+      }
+    } catch (error) {
+      setError('Erro ao cadastrar. Por favor, tente novamente.');
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <h1 className="text-2xl font-semibold mb-4 text-center text-blue-800">Cadastro</h1>
-        <form>
+    <div className="min-h-screen flex flex-col items-center justify-center custom-gradient">
+      <img src={blessbasket} alt="Bless Basket" className="mb-4 w-54" />
+
+      <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90"> {/* Estilizei o container aqui */}
+        <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
+          Cadastro no Bless Basket
+        </h1>
+
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="name" className="block text-gray-800 text-sm font-semibold mb-2">
               Nome
             </label>
             <input
@@ -15,10 +48,12 @@ export default function Register() {
               id="name"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite seu nome"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="email" className="block text-gray-800 text-sm font-semibold mb-2">
               Email
             </label>
             <input
@@ -26,10 +61,12 @@ export default function Register() {
               id="email"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-800 text-sm font-semibold mb-2">
               Senha
             </label>
             <input
@@ -37,19 +74,29 @@ export default function Register() {
               id="password"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="w-full bg-custom2 text-white rounded-2xl font-semibold py-2 px-4 hover:bg-custom focus:outline-none focus:bg-custom"
           >
-            Registrar
+            Cadastrar
           </button>
         </form>
-        <p className="mt-4 text-center">
-          Já tem uma conta? <a href="/" className="text-blue-500 hover:underline">Entrar</a>
+
+        {error && <p className="mt-4 text-center text-red-500">{error}</p>}
+
+        <p className="mt-4 text-center text-gray-600">
+          Já tem uma conta?{' '}
+          <a href="/" className="text-custom hover:underline">
+            Faça login
+          </a>
         </p>
       </div>
     </div>
   );
 }
+
+export default Register;

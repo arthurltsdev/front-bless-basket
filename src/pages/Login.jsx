@@ -1,12 +1,44 @@
-export default function Login(){
-    return(
-        <>
-       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <h1 className="text-2xl font-semibold mb-4 text-center text-black">Login</h1>
-        <form>
+import axios from 'axios';
+import { useState } from 'react';
+import blessbasket from '../assets/blessbasket-removebg-preview.png';
+
+function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:3000/login', {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        console.log('Login bem-sucedido!');
+      } else {
+        setError('Credenciais inválidas.');
+      }
+    } catch (error) {
+      setError('Erro ao fazer login. Por favor, tente novamente.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center custom-gradient">
+      <img src={blessbasket} alt="Bless Basket" className="mb-4 w-54" />
+
+      <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90"> {/* Estilizei o container aqui */}
+        <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
+          Bem-vindo ao Bless Basket
+        </h1>
+
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="email" className="block text-gray-800 text-sm font-semibold mb-2">
               Email
             </label>
             <input
@@ -14,10 +46,12 @@ export default function Login(){
               id="email"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-800 text-sm font-semibold mb-2">
               Senha
             </label>
             <input
@@ -25,20 +59,29 @@ export default function Login(){
               id="password"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="w-full bg-custom2 text-white rounded-2xl font-semibold py-2 px-4 hover:bg-custom focus:outline-none focus:bg-custom"
           >
             Entrar
           </button>
         </form>
-        <p className="mt-4 text-center">
-          Não tem uma conta? <a href="/register" className="text-blue-500 hover:underline">Registrar</a>
+
+        {error && <p className="mt-4 text-center text-red-500">{error}</p>}
+
+        <p className="mt-4 text-center text-gray-600">
+          Não tem uma conta?{' '}
+          <a href="/register" className="text-custom hover:underline">
+            Registrar
+          </a>
         </p>
       </div>
-    </div> 
-        </>
-    )
+    </div>
+  );
 }
+
+export default Login;
