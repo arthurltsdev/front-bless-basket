@@ -2,15 +2,16 @@ import { faEdit, faSignOutAlt, faTrash } from '@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shopeople from '../assets/undraw_shopping_bags_noba (1).svg';
 
-
 function Home() {
+  const { id } = useParams();
   const history = useHistory();
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState('');
+  const [productToDelete, setProductToDelete] = useState(null); // Para armazenar temporariamente o produto a ser excluído
 
   // Função para buscar os produtos do supermercado do backend
   const getProducts = async () => {
@@ -38,46 +39,48 @@ function Home() {
     history.push("/cadastro-produtos");
   };
 
-  // Função para atualizar um produto
-  const handleUpdateProduct = async (productId) => {
-    try {
-      const response = await axios.put(`http://localhost:3001/products/${productId}`, {
-
-
-    }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-
-      if (response.status === 200) {
-        getProducts();
-      }
-    } catch (error) {
-      console.error(error);
-      // Trate erros de atualização aqui
-    }
+  // Função para abrir o modal de confirmação
+  const openDeleteConfirmationModal = (product) => {
+    setProductToDelete(product);
   };
 
-  // Função para excluir um produto
-  const handleDeleteProduct = async (productId) => {
+  // Função para fechar o modal de confirmação
+  const closeDeleteConfirmationModal = () => {
+    setProductToDelete(null);
+  };
+
+ // ...
+// Função para confirmar a exclusão do produto
+const confirmDeleteProduct = async () => {
+  if (productToDelete) {
     try {
-      // Implemente a lógica de exclusão do produto aqui, enviando uma requisição DELETE
-      const response = await axios.delete(`http://localhost:3001/delete/product/${productId}`, {
+      const token = localStorage.getItem("token");
+      const config = {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+        Authorization: `Bearer ${token}`,
+      }}
+      const response = await axios.delete(`http://localhost:3001/delete/product/name`, config, {
+        data: {
+          name: productToDelete.name // Enviando o nome do produto no corpo da solicitação DELETE
         }
       });
 
       if (response.status === 204) {
         // Produto excluído com sucesso, você pode mostrar uma mensagem ou recarregar os produtos
-        getProducts();
+        const updatedProducts = products.filter((product) => product.name !== productToDelete.name);
+        setProducts(updatedProducts); // Atualizar o estado local de produtos
       }
     } catch (error) {
       console.error(error);
       // Trate erros de exclusão aqui
     }
-  };
+  }
+
+  closeDeleteConfirmationModal();
+};
+
+// ...
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -114,7 +117,7 @@ function Home() {
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
                 <button
-                  onClick={() => handleDeleteProduct(product.id)}
+                  onClick={() => openDeleteConfirmationModal(product)}
                   className="bg-red-500 text-white rounded-full font-semibold py-2 px-3 hover:bg-red-600 focus:outline-none focus:bg-red-600"
                 >
                   <FontAwesomeIcon icon={faTrash} />
@@ -125,11 +128,11 @@ function Home() {
         </div>
 
         <button
-  onClick={handleLogout}
-  className="absolute top-2 right-2 text-red-500 hover:text-red-600 focus:outline-none"
->
-  <FontAwesomeIcon icon={faSignOutAlt} size="2x" />
-</button>
+          onClick={handleLogout}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-600 focus:outline-none"
+        >
+          <FontAwesomeIcon icon={faSignOutAlt} size="2x" />
+        </button>
 
         <button
           onClick={handleGoToProductPage}
@@ -139,6 +142,29 @@ function Home() {
         </button>
       </div>
       <ToastContainer />
+      
+      {/* Modal de confirmação de exclusão */}
+      {productToDelete && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded shadow-md w-96">
+            <p className="mb-4 text-center">Tem certeza de que deseja excluir o produto?</p>
+            <div className="flex justify-center">
+              <button
+                onClick={confirmDeleteProduct}
+                className="bg-red-500 text-white rounded-full font-semibold py-2 px-3 mr-2 hover:bg-red-600 focus:outline-none focus:bg-red-600"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={closeDeleteConfirmationModal}
+                className="bg-blue-500 text-white rounded-full font-semibold py-2 px-3 hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
