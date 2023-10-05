@@ -1,39 +1,50 @@
-import axios from 'axios';
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import blessbasket from '../assets/blessbasket-removebg-preview.png';
+import loginService from '../services/loginService';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
+  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    const formData = new FormData(e.currentTarget);
+    const data = {};
+
+    for (const [key, value] of formData) {
+      data[key] = value;
+    }
 
     try {
-      const response = await axios.post('http://localhost:3000/login', {
-        email,
-        password,
-      });
-
-      if (response.status === 200) {
-        console.log('Login bem-sucedido!');
+      const response = await loginService.login(data);
+      if (response.ok) {
+        const result = await response.json();
+        localStorage.setItem("token", result["Access-Token"]);
+        console.log(result);
+        history.push("/home");
       } else {
-        setError('Credenciais inválidas.');
+        toast("Erro no login. Verifique suas credenciais.");
       }
-    } catch (error) {
-      setError('Erro ao fazer login. Por favor, tente novamente.');
+    } catch (err) {
+      toast("Erro desconhecido");
     }
+  };
+
+  // Função para alternar a visibilidade da senha
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center custom-gradient">
       <img src={blessbasket} alt="Bless Basket" className="mb-4 w-54" />
 
-      <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90"> {/* Estilizei o container aqui */}
+      <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90">
         <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-          Bem-vindo ao Bless Basket
+          Bem-vindo à<br /> Bless Basket
         </h1>
 
         <form onSubmit={handleSubmit}>
@@ -44,42 +55,62 @@ function Login() {
             <input
               type="email"
               id="email"
+              name="email"
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Digite seu email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-6">
             <label htmlFor="password" className="block text-gray-800 text-sm font-semibold mb-2">
               Senha
             </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Digite sua senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'} // Alterna entre texto e senha
+                id="password"
+                name="password"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+                placeholder="Digite sua senha"
+              />
+              <span
+                className="absolute top-2 right-2 cursor-pointer"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? 'Ocultar' : 'Mostrar'}
+              </span>
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+                className="mr-2"
+              />
+              Lembrar-me
+            </label>
           </div>
           <button
             type="submit"
-            className="w-full bg-custom2 text-white rounded-2xl font-semibold py-2 px-4 hover:bg-custom focus:outline-none focus:bg-custom"
+            className="w-full bg-custom2 text-white rounded-2xl font-semibold py-2 px-4 hover:bg-darkGreen focus:outline-none focus:bg-darkGreen"
           >
             Entrar
           </button>
         </form>
-
-        {error && <p className="mt-4 text-center text-red-500">{error}</p>}
-
         <p className="mt-4 text-center text-gray-600">
           Não tem uma conta?{' '}
-          <a href="/register" className="text-custom hover:underline">
+          <a href="/register" className="text-darkGreen hover:underline">
             Registrar
           </a>
         </p>
+        <p className="mt-2 text-center text-custom2">
+          <a href="/forgot-password" className="hover:underline">
+            Esqueceu a senha?
+          </a>
+        </p>
       </div>
+      <ToastContainer />
     </div>
   );
 }
