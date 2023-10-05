@@ -9,6 +9,11 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
   const history = useHistory();
 
+  // Função para alternar a visibilidade da senha
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -23,7 +28,6 @@ function Login() {
       if (response.ok) {
         const result = await response.json();
         localStorage.setItem("token", result["Access-Token"]);
-        console.log(result);
         history.push("/home");
       } else {
         toast("Erro no login. Verifique suas credenciais.");
@@ -31,11 +35,6 @@ function Login() {
     } catch (err) {
       toast("Erro desconhecido");
     }
-  };
-
-  // Função para alternar a visibilidade da senha
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -76,7 +75,7 @@ function Login() {
                 className="absolute top-2 right-2 cursor-pointer"
                 onClick={togglePasswordVisibility}
               >
-                {showPassword ? 'Ocultar' : 'Mostrar'}
+                {showPassword ? 'Ocultar' : 'Mostrar'} Senha
               </span>
             </div>
           </div>

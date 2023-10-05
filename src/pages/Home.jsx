@@ -1,8 +1,8 @@
+import axios from 'axios'; // Importe a biblioteca Axios
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shopeople from '../assets/undraw_shopping_bags_noba (1).svg';
-import loginService from '../services/loginService';
 
 function Home() {
   const history = useHistory();
@@ -12,8 +12,12 @@ function Home() {
   // Função para buscar os produtos do supermercado do backend
   const fetchProducts = async () => {
     try {
-      const response = await loginService.getProducts(); // Use o serviço de produtos
-      setProducts(response);
+      const response = await axios.get('http://localhost:3001/products', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}` // Adicione o token de autorização
+        }
+      });
+      setProducts(response.data);
     } catch (err) {
       console.error(err);
       setMessage("Ocorreu um erro ao buscar os produtos.");
