@@ -6,10 +6,9 @@ import loginService from '../services/loginService';
 
 function Login() {
   const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
+  const [showPassword, setShowPassword] = useState(false);
   const history = useHistory();
 
-  // Função para alternar a visibilidade da senha
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -65,7 +64,7 @@ function Login() {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'} // Alterna entre texto e senha
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
@@ -99,14 +98,20 @@ function Login() {
         </form>
         <p className="mt-4 text-center text-gray-600">
           Não tem uma conta?{' '}
-          <a href="/register" className="text-darkGreen hover:underline">
+          <span
+            className="text-darkGreen cursor-pointer"
+            onClick={() => history.push("/register")}
+          >
             Registrar
-          </a>
+          </span>
         </p>
         <p className="mt-2 text-center text-custom2">
-          <a href="/forgot-password" className="hover:underline">
+          <span
+            className="cursor-pointer"
+            onClick={() => history.push("/forgot-password")}
+          >
             Esqueceu a senha?
-          </a>
+          </span>
         </p>
       </div>
       <ToastContainer />

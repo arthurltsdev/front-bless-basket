@@ -1,7 +1,7 @@
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,7 +30,7 @@ function RegisProduct() {
 
     try {
       // Fazer a requisição POST para a API
-      const response = await axios.post('http://localhost:3001/products', productData, {
+        await axios.post('http://localhost:3001/products', productData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
