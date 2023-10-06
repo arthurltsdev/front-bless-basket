@@ -17,7 +17,7 @@ function Register() {
     setError('');
 
     try {
-      const response = await axios.post('https://dreamy-alfajores-25a6d6.netlify.app/createuser', {
+      const response = await axios.post('http://localhost:3001/createuser', {
         name,
         email,
         password,
