@@ -1,19 +1,17 @@
-import { faEdit, faSignOutAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shopeople from '../assets/undraw_shopping_bags_noba (1).svg';
 
 function Home() {
-  const { id } = useParams();
   const history = useHistory();
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState('');
-  const [productToDelete, setProductToDelete] = useState(null); // Para armazenar temporariamente o produto a ser excluído
+  const [productToDelete, setProductToDelete] = useState(null);
 
-  // Função para buscar os produtos do supermercado do backend
   const getProducts = async () => {
     try {
       const response = await axios.get('http://localhost:3001/products', {
@@ -28,59 +26,53 @@ function Home() {
     }
   };
 
-  // Função para fazer logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     history.push("/");
   };
 
-  // Redirecionar para a página de cadastro de produtos
   const handleGoToProductPage = () => {
-    history.push("/cadastro-produtos");
+    history.push("/product-registration");
   };
 
-  // Função para abrir o modal de confirmação
   const openDeleteConfirmationModal = (product) => {
     setProductToDelete(product);
   };
 
-  // Função para fechar o modal de confirmação
   const closeDeleteConfirmationModal = () => {
     setProductToDelete(null);
   };
 
- // ...
-// Função para confirmar a exclusão do produto
-const confirmDeleteProduct = async () => {
-  if (productToDelete) {
+  const deleteProduct = async (product) => {
     try {
       const token = localStorage.getItem("token");
       const config = {
         headers: {
-        Authorization: `Bearer ${token}`,
-      }}
-      const response = await axios.delete(`http://localhost:3001/delete/product/name`, config, {
+          Authorization: `Bearer ${token}`,
+        },
         data: {
-          name: productToDelete.name // Enviando o nome do produto no corpo da solicitação DELETE
-        }
-      });
+          name: product.name,
+        },
+      };
+
+      const response = await axios.delete(`http://localhost:3001/delete/product/name`, config);
 
       if (response.status === 204) {
-        // Produto excluído com sucesso, você pode mostrar uma mensagem ou recarregar os produtos
-        const updatedProducts = products.filter((product) => product.name !== productToDelete.name);
-        setProducts(updatedProducts); // Atualizar o estado local de produtos
+        // Atualize o estado de produtos após a exclusão
+        setProducts((prevProducts) => prevProducts.filter((p) => p.name !== product.name));
+        closeDeleteConfirmationModal();
       }
     } catch (error) {
       console.error(error);
       // Trate erros de exclusão aqui
     }
-  }
+  };
 
-  closeDeleteConfirmationModal();
-};
-
-// ...
-
+  const confirmDeleteProduct = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -102,30 +94,31 @@ const confirmDeleteProduct = async () => {
 
         {message && <p className="text-red-500 mb-4 text-center">{message}</p>}
 
-        <div className="mb-8">
-          {products.map((product) => (
-            <div key={product.id} className="mb-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">{product.name}</h2>
-                <p className="text-gray-600">Preço: R$ {product.price}</p>
+        {products.length === 0 ? (
+          <p className="text-center text-gray-600">
+            Nenhum produto disponível no momento. Adicione produtos para que apareçam aqui!
+          </p>
+        ) : (
+          <div className="mb-8">
+            {products.map((product) => (
+              <div key={product.id} className="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">{product.name}</h2>
+                  <p className="text-gray-600">Preço: R$ {product.price}</p>
+                  <p className="text-gray-600">Validade: {product.validity}</p> {/* Adicione esta linha */}
+                </div>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => openDeleteConfirmationModal(product)}
+                    className="bg-red-500 text-white rounded-full font-semibold py-2 px-3 hover:bg-red-600 focus:outline-none focus:bg-red-600"
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center">
-                <button
-                  onClick={() => handleUpdateProduct(product.id)}
-                  className="bg-blue-500 text-white rounded-full font-semibold py-2 px-3 mr-2 hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button
-                  onClick={() => openDeleteConfirmationModal(product)}
-                  className="bg-red-500 text-white rounded-full font-semibold py-2 px-3 hover:bg-red-600 focus:outline-none focus:bg-red-600"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <button
           onClick={handleLogout}
@@ -142,8 +135,7 @@ const confirmDeleteProduct = async () => {
         </button>
       </div>
       <ToastContainer />
-      
-      {/* Modal de confirmação de exclusão */}
+
       {productToDelete && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded shadow-md w-96">

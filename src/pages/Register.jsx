@@ -27,8 +27,8 @@ function Register() {
       if (response.status === 201) {
         toast.success('Usuário criado com sucesso');
         history.push('/registration-complete');
-      } else if (response.status === 400 && response.data.error === 'Email already in use') {
-        setError('Esse email já está em uso');
+      } else if (response.status === 400) {
+        toast.error('Email já existente');
       } else {
         setError('Erro ao cadastrar. Por favor, tente novamente.');
       }
