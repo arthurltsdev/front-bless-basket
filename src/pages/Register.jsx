@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import blessbasket from '../assets/blessbasket-removebg-preview.png';
+import { API_BASE_URL } from '../config';
 
 function Register() {
   const [name, setName] = useState('');
@@ -17,7 +18,7 @@ function Register() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3001/createuser', {
+      const response = await axios.post(`${API_BASE_URL}/createuser`, {
         name,
         email,
         password,
@@ -40,12 +41,10 @@ function Register() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center custom-gradient">
       <img src={blessbasket} alt="Bless Basket" className="mb-4 w-54" />
-
       <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90">
         <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
           Cadastre-se na <br />Bless Basket
         </h1>
-
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-800 text-sm font-semibold mb-2">
@@ -106,15 +105,10 @@ function Register() {
             Cadastrar
           </button>
         </form>
-
         {error && <p className="mt-4 text-center text-red-500">{error}</p>}
-
         <p className="mt-4 text-center text-gray-600">
           Já tem uma conta?{' '}
-          <span
-            className="text-custom cursor-pointer"
-            onClick={() => history.push("/")}
-          >
+          <span className="text-custom cursor-pointer" onClick={() => history.push("/")}>
             Faça login
           </span>
         </p>

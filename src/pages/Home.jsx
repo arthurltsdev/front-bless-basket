@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import shopeople from '../assets/undraw_shopping_bags_noba (1).svg';
+import { API_BASE_URL } from '../config';
 
 function Home() {
   const history = useHistory();
@@ -14,7 +15,7 @@ function Home() {
 
   const getProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/products', {
+      const response = await axios.get(`${API_BASE_URL}/products`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -55,16 +56,14 @@ function Home() {
         },
       };
 
-      const response = await axios.delete(`http://localhost:3001/delete/product/name`, config);
+      const response = await axios.delete(`${API_BASE_URL}/delete/product/name`, config);
 
       if (response.status === 204) {
-        // Atualize o estado de produtos após a exclusão
         setProducts((prevProducts) => prevProducts.filter((p) => p.name !== product.name));
         closeDeleteConfirmationModal();
       }
     } catch (error) {
       console.error(error);
-      // Trate erros de exclusão aqui
     }
   };
 
@@ -87,13 +86,10 @@ function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center custom-gradient">
       <div className="bg-white p-8 rounded-3xl shadow-md w-96 opacity-90">
         <img src={shopeople} alt="Bless Basket" className="mb-4 w-54" />
-
         <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
           Produtos do Supermercado
         </h1>
-
         {message && <p className="text-red-500 mb-4 text-center">{message}</p>}
-
         {products.length === 0 ? (
           <p className="text-center text-gray-600">
             Nenhum produto disponível no momento. Adicione produtos para que apareçam aqui!
@@ -105,7 +101,7 @@ function Home() {
                 <div>
                   <h2 className="text-lg font-semibold">{product.name}</h2>
                   <p className="text-gray-600">Preço: R$ {product.price}</p>
-                  <p className="text-gray-600">Validade: {product.validity}</p> {/* Adicione esta linha */}
+                  <p className="text-gray-600">Validade: {product.validity}</p>
                 </div>
                 <div className="flex items-center">
                   <button
@@ -119,14 +115,12 @@ function Home() {
             ))}
           </div>
         )}
-
         <button
           onClick={handleLogout}
           className="absolute top-2 right-2 text-red-500 hover:text-red-600 focus:outline-none"
         >
           <FontAwesomeIcon icon={faSignOutAlt} size="2x" />
         </button>
-
         <button
           onClick={handleGoToProductPage}
           className="w-full bg-custom2 text-white rounded-2xl font-semibold py-2 px-4 hover:bg-darkGreen focus:outline-none focus:bg-darkGreen"
@@ -135,7 +129,6 @@ function Home() {
         </button>
       </div>
       <ToastContainer />
-
       {productToDelete && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded shadow-md w-96">

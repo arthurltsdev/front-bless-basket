@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { API_BASE_URL } from '../config';
 function RegisProduct() {
   const history = useHistory();
   const [productData, setProductData] = useState({
@@ -30,7 +30,7 @@ function RegisProduct() {
 
     try {
       // Fazer a requisição POST para a API
-        await axios.post('http://localhost:3001/products', productData, {
+        await axios.post(`${API_BASE_URL}/products`, productData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
